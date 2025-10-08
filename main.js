@@ -1,11 +1,21 @@
 const canvas = document.getElementById("gameCanvas")
 const ctx = canvas.getContext("2d")
+
+// Event listenerit näppäimille
 document.addEventListener("keydown", handlekeyPress)
+document.addEventListener("mousedown", handleMouse)
 
-var img = new Image;
-img.src = "img/background.png"
+// Kuvat
+var backgroundImg = new Image;
+backgroundImg.src = "img/background.png"
 
+var pipeImg = new Image;
+pipeImg.src = "img/pipe-green.png"
 
+var upPipeImg = new Image;
+upPipeImg.src = "img/pipe-green-up.png"
+
+// Pelaajan tiedot
 let player = {
     x: 100,
     y: 100,
@@ -14,9 +24,10 @@ let player = {
     color: "red"
 }
 
+// Esteet
 let obstacles = []
 
-let dx = 0
+// Perustiedot
 let dy = 0
 let score = 0
 canvas.width = 480
@@ -28,8 +39,7 @@ let velocityY = 0
 let jumpPower = -10
 
 
-img.onload = function() {
-    // peli voi alkaa, kun tausta on ladattu
+backgroundImg.onload = function() {
     gameloop = setInterval(updateGame, 20)
 }
 setInterval(spawnObstacle, 2000)
@@ -37,11 +47,6 @@ setInterval(spawnObstacle, 2000)
 
 function handlekeyPress(e) {
     const key = e.key
-    if (key === "ArrowLeft") {
-        dx = -3
-    } else if (key === "ArrowRight") {
-        dx = 3
-    }
 
     // Välilyönti hyppyyn
     if (key === " ") {
@@ -49,14 +54,19 @@ function handlekeyPress(e) {
     }
 }
 
+function handleMouse(e) {
+    if (e.button === 0) {
+        velocityY = jumpPower
+    }
+}
+
 function updateGame() {
-    // Obstaakkelin liikkeet
+    // Esteiden liikkeet
     obstacles.forEach(obstacle => {
         obstacle.x -= 3
     });
 
     // Pelaajan liikeet
-    player.x += dx
     player.y += velocityY
 
     velocityY += gravity
@@ -73,7 +83,7 @@ function updateGame() {
     drawBackground()
     drawPlayer()
     drawObstacle()
-    
+    checkCollision()
 }
 
 // Piirtää pelaajan
@@ -82,13 +92,33 @@ function drawPlayer() {
     ctx.fillRect(player.x, player.y, 50, 50)
 }
 
+// Piirtää esteet
 function drawObstacle() {
     for (let obs of obstacles) {
-        ctx.fillStyle = obs.color
-        ctx.fillRect(obs.x, obs.y, obs.width, obs.height)
+        if (obs.downPipe) {
+            ctx.drawImage(pipeImg, obs.x, obs.y, obs.width, obs.height);
+        } else {
+            ctx.drawImage(upPipeImg, obs.x, obs.y, obs.width, obs.height);
+        }
+        
     }
 }
 
+// Piirtää taustakuvan
+function drawBackground() {
+    ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height)
+}
+
+function checkCollision() {
+    for (let obs of obstacles) {
+        let hitX = player.x + player.width > obs.x && player.x < obs.x + obs.width;
+        let hitY = player.y + player.height > obs.y && player.y < obs.y + obs.height;
+        if (hitX && hitY) {
+            gameOver();
+            return;
+        }
+    }
+}
 
 // Game over screen
 function gameOver(){
@@ -100,6 +130,7 @@ function gameOver(){
     ctx.fillText(`Score: ${score}`, 200, 170)
 }
 
+// Tekee uuden esteen joka 2 sekuntti
 function spawnObstacle() {
     let gap = 170 // aukon korkeus
     let minTopHeight = 50
@@ -109,15 +140,13 @@ function spawnObstacle() {
     let bottomY = topHeight + gap
     let bottomHeight = canvas.height - bottomY
 
-    let color = "green"
-
     // Yläpalkki
     obstacles.push({
         x: canvas.width,
         y: 0,
         width: 40,
         height: topHeight,
-        color: color
+        downPipe: false
     })
 
     // Alapalkki
@@ -126,10 +155,6 @@ function spawnObstacle() {
         y: bottomY,
         width: 40,
         height: bottomHeight,
-        color: color
+        downPipe: true
     })
-}
-
-function drawBackground() {
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 }
