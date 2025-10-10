@@ -101,6 +101,7 @@ function updateGame() {
     drawBackground()
     drawPlayer()
     drawObstacle()
+    drawScore()
     checkCollision()
     update()
 }
@@ -211,4 +212,10 @@ function update() {
         frameTimer = 0;
         player.frame = (player.frame + 1) % player.frameCount;
     }
+}
+
+function drawScore(){
+    ctx.fillStyle = "black"
+    ctx.font = "30px Arial"
+    ctx.fillText(`Score: ${score}`, 200, 130)
 }
