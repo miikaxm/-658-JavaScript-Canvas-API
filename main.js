@@ -1,19 +1,31 @@
 const canvas = document.getElementById("gameCanvas")
 const ctx = canvas.getContext("2d")
+ctx.imageSmoothingEnabled = false;
 
 // Event listenerit näppäimille
 document.addEventListener("keydown", handlekeyPress)
 document.addEventListener("mousedown", handleMouse)
 
 // Kuvat
+// Pelin taustakuva
 var backgroundImg = new Image;
 backgroundImg.src = "img/background.png"
+// img/Flappy Bird Assets/Background/Background5.png
 
+// Esteiden kuvat
 var pipeImg = new Image;
 pipeImg.src = "img/pipe-green.png"
 
 var upPipeImg = new Image;
 upPipeImg.src = "img/pipe-green-up.png"
+
+var newPipe = new Image;
+newPipe.src = "img/Flappy Bird Assets/Tiles/Style 1/PipeStyle1.png"
+
+// Pelaajan kuva
+var playerSpriteSheet = new Image;
+playerSpriteSheet.src = "img/Flappy Bird Assets/Player/StyleBird1/Bird1-3.png"
+playerSpriteSheet.width = 16
 
 // Pelaajan tiedot
 let player = {
@@ -21,8 +33,14 @@ let player = {
     y: 100,
     width: 50,
     height: 50,
-    color: "red"
+    frame: 0,
+    frameCount: 4,
+    frameWidth: 16,
+    frameHeight: 16,
+    frameSpeed: 8,
 }
+
+var frameTimer = 0;
 
 // Esteet
 let obstacles = []
@@ -34,7 +52,7 @@ canvas.width = 480
 canvas.height = 640
 
 // Hyppy tiedot
-let gravity = 0.6
+let gravity = 0.7
 let velocityY = 0
 let jumpPower = -10
 
@@ -84,23 +102,51 @@ function updateGame() {
     drawPlayer()
     drawObstacle()
     checkCollision()
+    update()
 }
 
 // Piirtää pelaajan
 function drawPlayer() {
-    ctx.fillStyle = player.color
-    ctx.fillRect(player.x, player.y, 50, 50)
+    var sx = player.frame * player.frameWidth;
+    var sy = 0;
+
+    ctx.imageSmoothingEnabled = false;   // pakota pois päältä
+    ctx.imageSmoothingQuality = "low";   // ei interpolointia
+
+    ctx.drawImage(
+        playerSpriteSheet,
+        sx, sy, player.frameWidth, player.frameHeight,
+        Math.floor(player.x), Math.floor(player.y), 
+        Math.floor(player.width), Math.floor(player.height)
+    );
 }
 
 // Piirtää esteet
 function drawObstacle() {
+    const spriteWidth = 32;
+    const spriteHeight = 80;
+    const col = 0
+    const row = 0
+    const sx = col * spriteWidth
+    const sy = row * spriteHeight
     for (let obs of obstacles) {
         if (obs.downPipe) {
-            ctx.drawImage(pipeImg, obs.x, obs.y, obs.width, obs.height);
+            ctx.drawImage(
+                newPipe,
+                sx, sy,
+                spriteWidth, spriteHeight,
+                obs.x, obs.y,
+                obs.width, obs.height
+            );
         } else {
-            ctx.drawImage(upPipeImg, obs.x, obs.y, obs.width, obs.height);
+            ctx.drawImage(
+                newPipe,
+                sx, sy,
+                spriteWidth, spriteHeight,
+                obs.x, obs.y,
+                obs.width, obs.height
+            );
         }
-        
     }
 }
 
@@ -133,7 +179,7 @@ function gameOver(){
 // Tekee uuden esteen joka 2 sekuntti
 function spawnObstacle() {
     let gap = 170 // aukon korkeus
-    let minTopHeight = 50
+    let minTopHeight = 100
     let maxTopHeight = canvas.height - gap - 50
     let topHeight = Math.floor(Math.random() * (maxTopHeight - minTopHeight)) + minTopHeight
 
@@ -144,7 +190,7 @@ function spawnObstacle() {
     obstacles.push({
         x: canvas.width,
         y: 0,
-        width: 40,
+        width: 80,
         height: topHeight,
         downPipe: false
     })
@@ -153,8 +199,16 @@ function spawnObstacle() {
     obstacles.push({
         x: canvas.width,
         y: bottomY,
-        width: 40,
+        width: 80,
         height: bottomHeight,
         downPipe: true
     })
+}
+
+function update() {
+    frameTimer++;
+    if (frameTimer >= player.frameSpeed) {
+        frameTimer = 0;
+        player.frame = (player.frame + 1) % player.frameCount;
+    }
 }
