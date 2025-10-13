@@ -157,9 +157,18 @@ function drawBackground() {
 }
 
 function checkCollision() {
+    if (player.y < 0) {
+        player.y = 0;
+        velocityY = 0;
+    }
+
     for (let obs of obstacles) {
         let hitX = player.x + player.width > obs.x && player.x < obs.x + obs.width;
         let hitY = player.y + player.height > obs.y && player.y < obs.y + obs.height;
+        if (!obs.scored && player.x > obs.x + (obs.width/4) && obs.downPipe) {
+            score += 1;
+            obs.scored = true;
+        }
         if (hitX && hitY) {
             gameOver();
             return;
