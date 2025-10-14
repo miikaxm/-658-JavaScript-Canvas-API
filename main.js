@@ -10,15 +10,8 @@ document.addEventListener("mousedown", handleMouse)
 // Pelin taustakuva
 var backgroundImg = new Image;
 backgroundImg.src = "img/background.png"
-// img/Flappy Bird Assets/Background/Background5.png
 
-// Esteiden kuvat
-var pipeImg = new Image;
-pipeImg.src = "img/pipe-green.png"
-
-var upPipeImg = new Image;
-upPipeImg.src = "img/pipe-green-up.png"
-
+// Esteet
 var newPipe = new Image;
 newPipe.src = "img/Flappy Bird Assets/Tiles/Style 1/PipeStyle1.png"
 
@@ -26,6 +19,23 @@ newPipe.src = "img/Flappy Bird Assets/Tiles/Style 1/PipeStyle1.png"
 var playerSpriteSheet = new Image;
 playerSpriteSheet.src = "img/Flappy Bird Assets/Player/StyleBird1/Bird1-3.png"
 playerSpriteSheet.width = 16
+
+// Numerot
+const spriteNumbers = new Image();
+spriteNumbers.src = "img/spritesheet.png";
+
+const numbers = {
+  0: { x: 288, y: 100, w: 7, h: 10 },
+  1: { x: 291, y: 118, w: 5, h: 10 },
+  2: { x: 289, y: 134, w: 7, h: 10 },
+  3: { x: 289, y: 150, w: 7, h: 10 },
+  4: { x: 287, y: 173, w: 7, h: 10 },
+  5: { x: 287, y: 185, w: 7, h: 10 },
+  6: { x: 165, y: 245, w: 7, h: 10 },
+  7: { x: 175, y: 245, w: 7, h: 10 },
+  8: { x: 185, y: 245, w: 7, h: 10 },
+  9: { x: 195, y: 245, w: 7, h: 10 },
+};
 
 // Pelaajan tiedot
 let player = {
@@ -56,22 +66,22 @@ let gravity = 0.7
 let velocityY = 0
 let jumpPower = -10
 
-
+// Aloittaa pelin sitten kun taustakuva on latautunut
 backgroundImg.onload = function() {
     gameloop = setInterval(updateGame, 20)
 }
 setInterval(spawnObstacle, 2000)
 
-
+// Välilyönti hyppy
 function handlekeyPress(e) {
     const key = e.key
 
-    // Välilyönti hyppyyn
     if (key === " ") {
         velocityY = jumpPower
     }
 }
 
+// Hiiri hyppy
 function handleMouse(e) {
     if (e.button === 0) {
         velocityY = jumpPower
@@ -95,13 +105,14 @@ function updateGame() {
         return
     }
 
+    // Esteet pois kun ei enää näy näytössä
     obstacles = obstacles.filter(obs => obs.x + obs.width > 0)
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawBackground()
     drawPlayer()
     drawObstacle()
-    drawScore()
+    drawScore(ctx, score, 220, 50)
     checkCollision()
     update()
 }
@@ -223,8 +234,17 @@ function update() {
     }
 }
 
-function drawScore(){
-    ctx.fillStyle = "black"
-    ctx.font = "30px Arial"
-    ctx.fillText(`Score: ${score}`, 200, 130)
+function drawScore(ctx, score, x, y) {
+  const digits = String(score).split("");
+  
+  digits.forEach((digit, i) => {
+    // Siirretään jokaista numeroa hieman oikealle
+    drawNumber(ctx, digit, x + i * 27, y);
+  });
+}
+
+
+function drawNumber(ctx, num, x, y) {
+    const n = numbers[num];
+    ctx.drawImage(spriteNumbers, n.x, n.y, n.w, n.h, x, y, 25, 30);
 }
