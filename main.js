@@ -1,6 +1,7 @@
 const canvas = document.getElementById("gameCanvas")
 const ctx = canvas.getContext("2d")
 ctx.imageSmoothingEnabled = false;
+gameStarted = false
 
 // Event listenerit näppäimille
 document.addEventListener("keydown", handlekeyPress)
@@ -24,6 +25,20 @@ playerSpriteSheet.width = 16
 const spriteNumbers = new Image();
 spriteNumbers.src = "img/spritesheet.png";
 
+// Game over näyttö
+const gameOverScreenSprites = new Image();
+gameOverScreenSprites.src = "img/spritesheet.png"
+
+// kolikot
+const coinsSprite = new Image();
+coinsSprite.src = "img/spritesheet.png"
+
+const coins = {
+    0: { x: 302, y: 137, w: 22, h: 22},
+    1: { x: 266, y: 229, w: 22, h: 22},
+    2: { x: 242, y: 229, w: 22, h: 22},
+}
+
 const numbers = {
   0: { x: 288, y: 100, w: 7, h: 10 },
   1: { x: 291, y: 118, w: 5, h: 10 },
@@ -37,10 +52,15 @@ const numbers = {
   9: { x: 195, y: 245, w: 7, h: 10 },
 };
 
+gameOverSprites = {
+    0: { x: 146, y: 199, w: 94, h: 19 },
+    1: { x: 146, y: 58, w: 113, h: 58 },
+}
+
 // Pelaajan tiedot
 let player = {
     x: 100,
-    y: 100,
+    y: 300,
     width: 50,
     height: 50,
     frame: 0,
@@ -75,7 +95,10 @@ setInterval(spawnObstacle, 2000)
 // Välilyönti hyppy
 function handlekeyPress(e) {
     const key = e.key
-
+    if (key === " " && gameStarted === false) {
+        gameStarted = true
+        velocityY = jumpPower
+    }
     if (key === " ") {
         velocityY = jumpPower
     }
@@ -83,21 +106,27 @@ function handlekeyPress(e) {
 
 // Hiiri hyppy
 function handleMouse(e) {
-    if (e.button === 0) {
+    if (e.button === 0 && gameStarted === false) {
+        gameStarted = true
         velocityY = jumpPower
     }
+    if (e.button === 0) {
+        velocityY = jumpPower
+    } 
 }
 
 function updateGame() {
     // Esteiden liikkeet
-    obstacles.forEach(obstacle => {
-        obstacle.x -= 3
-    });
+    if (gameStarted) {
+            obstacles.forEach(obstacle => {
+            obstacle.x -= 3
+        });
 
-    // Pelaajan liikeet
-    player.y += velocityY
-
-    velocityY += gravity
+        // Pelaajan liikeet
+        player.y += velocityY
+        velocityY += gravity
+    }
+    
 
     if (player.y + player.height > canvas.height) {
         player.y = canvas.height - player.height
@@ -187,16 +216,6 @@ function checkCollision() {
     }
 }
 
-// Game over screen
-function gameOver(){
-    clearInterval(gameloop)
-    ctx.clearRect(0,0 ,canvas.width, canvas.height)
-    ctx.fillStyle = "black"
-    ctx.font = "30px Arial"
-    ctx.fillText("Game Over", 200, 130)
-    ctx.fillText(`Score: ${score}`, 200, 170)
-}
-
 // Tekee uuden esteen joka 2 sekuntti
 function spawnObstacle() {
     let gap = 170 // aukon korkeus
@@ -247,4 +266,65 @@ function drawScore(ctx, score, x, y) {
 function drawNumber(ctx, num, x, y) {
     const n = numbers[num];
     ctx.drawImage(spriteNumbers, n.x, n.y, n.w, n.h, x, y, 25, 30);
+}
+
+// Game over screen
+function gameOver(){
+    clearInterval(gameloop)
+    const gameOverText = gameOverSprites[0];
+    const scoreBoard = gameOverSprites[1];
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Kolikot
+    const bronzeCoin = coins[0]
+    const silverCoin = coins[1]
+    const GoldCoin = coins[2]
+
+    // Game over teksti
+    const goScale = 2.5;
+    const goW = gameOverText.w * goScale;
+    const goH = gameOverText.h * goScale;
+    ctx.drawImage(
+        gameOverScreenSprites,
+        gameOverText.x, gameOverText.y, gameOverText.w, gameOverText.h,
+        centerX - goW / 2, centerY - goH - 40,
+        goW, goH
+    );
+
+    // Pistetaulukko
+    const sbScale = 2.2;
+    const sbW = scoreBoard.w * sbScale;
+    const sbH = scoreBoard.h * sbScale;
+    ctx.drawImage(
+        gameOverScreenSprites,
+        scoreBoard.x, scoreBoard.y, scoreBoard.w, scoreBoard.h,
+        centerX - sbW / 2, centerY - sbH / 2 + 60,
+        sbW, sbH
+    );
+
+    const scoreX = centerX - -70;
+    const scoreY = centerY + 30;
+    drawScore(ctx, score, scoreX, scoreY, 18, 22);
+
+    // Kolikot scoreboardiin scoren mukaan
+    if (score >= 10 && score < 25) {
+        ctx.drawImage(
+            coinsSprite,
+            bronzeCoin.x, bronzeCoin.y, bronzeCoin.w, bronzeCoin.h,
+            144, 363, 22*sbScale, 22*sbScale
+        )
+    } else if (score >= 25  && score < 50) {
+        ctx.drawImage(
+            coinsSprite,
+            silverCoin.x, silverCoin.y, silverCoin.w, silverCoin.h,
+            144, 363, 22*sbScale, 22*sbScale
+        )
+    } else if (score >= 50) {
+        ctx.drawImage(
+            coinsSprite,
+            GoldCoin.x, GoldCoin.y, GoldCoin.w, GoldCoin.h,
+            144, 363, 22*sbScale, 22*sbScale
+        )
+    }
 }
