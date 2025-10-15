@@ -33,6 +33,10 @@ gameOverScreenSprites.src = "img/spritesheet.png"
 const coinsSprite = new Image();
 coinsSprite.src = "img/spritesheet.png"
 
+// Restart nappi
+const restartBtn = new Image();
+restartBtn.src = "img/Buttons Pixel Animation Pack/restart/72px/restart01.png"
+
 const coins = {
     0: { x: 302, y: 137, w: 22, h: 22},
     1: { x: 266, y: 229, w: 22, h: 22},
@@ -271,6 +275,7 @@ function drawNumber(ctx, num, x, y) {
 
 // Game over screen
 function gameOver(){
+    saveHighScore(score);
     clearInterval(gameloop)
     const gameOverText = gameOverSprites[0];
     const scoreBoard = gameOverSprites[1];
@@ -307,6 +312,7 @@ function gameOver(){
     const scoreX = centerX - -70;
     const scoreY = centerY + 30;
     drawScore(ctx, score, scoreX, scoreY, 18, 22);
+    drawScore(ctx, getHighScore(), scoreX, scoreY+50, 18, 22)
 
     // Kolikot scoreboardiin scoren mukaan
     if (score >= 10 && score < 25) {
@@ -328,4 +334,51 @@ function gameOver(){
             144, 363, 22*sbScale, 22*sbScale
         )
     }
+
+    // Restart nappi
+    const restartBtnScale = 1;
+    const restartBtnW = restartBtn.width * restartBtnScale;
+    const restartBtnH = restartBtn.height * restartBtnScale;
+    ctx.drawImage(
+        restartBtn,
+        0, 0, restartBtn.width, restartBtn.height,
+        centerX - restartBtnW / 2, centerY + sbH / 2 + 80,
+        restartBtnW, restartBtnH
+    );
+
+    // Käynnistää pelin uudestaan jos restart nappia painetaan
+    canvas.onclick = function(e) {
+        const btnX = centerX - restartBtnW / 2;
+        const btnY = centerY + sbH / 2 + 80;
+        if (
+            e.offsetX >= btnX &&
+            e.offsetX <= btnX + restartBtnW &&
+            e.offsetY >= btnY &&
+            e.offsetY <= btnY + restartBtnH
+        ) {
+            // Nollaa kaikki peliin liittyvät tiedot
+            score = 0;
+            player.x = 100;
+            player.y = 300;
+            velocityY = 0;
+            obstacles = [];
+            gameStarted = false;
+            frameTimer = 0;
+            player.frame = 0;
+            gameloop = setInterval(updateGame, 20);
+            canvas.onclick = null;
+        }
+    };
+}
+
+// Local storage
+function saveHighScore(score) {
+    const highScore = localStorage.getItem("highScore") || 0;
+    if (score > highScore) {
+        localStorage.setItem("highScore", score);
+    }
+}
+
+function getHighScore() {
+    return localStorage.getItem("highScore") || 0;
 }
