@@ -10,7 +10,7 @@ document.addEventListener("mousedown", handleMouse)
 // Kuvat
 // Pelin taustakuva
 var backgroundImg = new Image;
-backgroundImg.src = "img/background.png"
+backgroundImg.src = "img/Flappy Bird Assets/Background/Background7.png"
 
 // Esteet
 var newPipe = new Image;
@@ -258,14 +258,15 @@ function drawScore(ctx, score, x, y) {
   
   digits.forEach((digit, i) => {
     // Siirretään jokaista numeroa hieman oikealle
-    drawNumber(ctx, digit, x + i * 27, y);
+    drawNumber(ctx, digit, x + i * 30, y);
   });
 }
 
 
 function drawNumber(ctx, num, x, y) {
     const n = numbers[num];
-    ctx.drawImage(spriteNumbers, n.x, n.y, n.w, n.h, x, y, 25, 30);
+    const scale = 4; // Skaalauskerroin
+    ctx.drawImage(spriteNumbers, n.x, n.y, n.w, n.h, x, y, n.w * scale, n.h * scale);
 }
 
 // Game over screen
