@@ -145,7 +145,7 @@ function updateGame() {
     drawBackground()
     drawPlayer()
     drawObstacle()
-    drawScore(ctx, score, 220, 50)
+    drawScore(ctx, score, 220, 50, 4)
     checkCollision()
     update()
 }
@@ -223,7 +223,7 @@ function checkCollision() {
 // Tekee uuden esteen joka 2 sekuntti
 function spawnObstacle() {
     let gap = 170 // aukon korkeus
-    let minTopHeight = 100
+    let minTopHeight = 75
     let maxTopHeight = canvas.height - gap - 50
     let topHeight = Math.floor(Math.random() * (maxTopHeight - minTopHeight)) + minTopHeight
 
@@ -257,20 +257,20 @@ function update() {
     }
 }
 
-function drawScore(ctx, score, x, y) {
+function drawScore(ctx, score, x, y, scale) {
   const digits = String(score).split("");
-  
+  const scalef = scale
   digits.forEach((digit, i) => {
     // Siirretään jokaista numeroa hieman oikealle
-    drawNumber(ctx, digit, x + i * 30, y);
+    drawNumber(ctx, digit, x + i * 17, y, scalef);
   });
 }
 
 
-function drawNumber(ctx, num, x, y) {
+function drawNumber(ctx, num, x, y, scale) {
     const n = numbers[num];
-    const scale = 4; // Skaalauskerroin
-    ctx.drawImage(spriteNumbers, n.x, n.y, n.w, n.h, x, y, n.w * scale, n.h * scale);
+    const sscale = scale; // Skaalauskerroin
+    ctx.drawImage(spriteNumbers, n.x, n.y, n.w, n.h, x, y, n.w * sscale, n.h * sscale);
 }
 
 // Game over screen
@@ -311,8 +311,8 @@ function gameOver(){
 
     const scoreX = centerX - -70;
     const scoreY = centerY + 30;
-    drawScore(ctx, score, scoreX, scoreY, 18, 22);
-    drawScore(ctx, getHighScore(), scoreX, scoreY+50, 18, 22)
+    drawScore(ctx, score, scoreX, scoreY+5, 2);
+    drawScore(ctx, getHighScore(), scoreX+3, scoreY+50, 2)
 
     // Kolikot scoreboardiin scoren mukaan
     if (score >= 10 && score < 25) {
