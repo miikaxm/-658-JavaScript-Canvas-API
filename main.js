@@ -262,7 +262,7 @@ function drawScore(ctx, score, x, y, scale) {
   const scalef = scale
   digits.forEach((digit, i) => {
     // Siirretään jokaista numeroa hieman oikealle
-    drawNumber(ctx, digit, x + i * 17, y, scalef);
+    drawNumber(ctx, digit, x + i * 29, y, scalef);
   });
 }
 
