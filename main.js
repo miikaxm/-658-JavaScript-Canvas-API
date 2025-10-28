@@ -155,8 +155,8 @@ function drawPlayer() {
     var sx = player.frame * player.frameWidth;
     var sy = 0;
 
-    ctx.imageSmoothingEnabled = false;   // pakota pois päältä
-    ctx.imageSmoothingQuality = "low";   // ei interpolointia
+    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingQuality = "low";
 
     ctx.drawImage(
         playerSpriteSheet,
@@ -200,6 +200,7 @@ function drawBackground() {
     ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height)
 }
 
+// Tarkistaa osuuko pelaaja esteisiin jos osuu peli on ohi
 function checkCollision() {
     if (player.y < 0) {
         player.y = 0;
@@ -223,9 +224,9 @@ function checkCollision() {
 // Tekee uuden esteen joka 2 sekuntti
 function spawnObstacle() {
     let gap = 170 // aukon korkeus
-    let minTopHeight = 75
-    let maxTopHeight = canvas.height - gap - 50
-    let topHeight = Math.floor(Math.random() * (maxTopHeight - minTopHeight)) + minTopHeight
+    let minPipeHeight = 80 // minimi korkeus putkille
+    let maxTopHeight = canvas.height - gap - minPipeHeight
+    let topHeight = Math.floor(Math.random() * (maxTopHeight - minPipeHeight)) + minPipeHeight
 
     let bottomY = topHeight + gap
     let bottomHeight = canvas.height - bottomY
@@ -249,6 +250,8 @@ function spawnObstacle() {
     })
 }
 
+
+// Päivittää pelaajan animaation
 function update() {
     frameTimer++;
     if (frameTimer >= player.frameSpeed) {
@@ -257,28 +260,28 @@ function update() {
     }
 }
 
+// Piirtää scoren näytölle
 function drawScore(ctx, score, x, y, scale) {
   const digits = String(score).split("");
   const scalef = scale
   digits.forEach((digit, i) => {
-    // Siirretään jokaista numeroa hieman oikealle
     drawNumber(ctx, digit, x + i * 29, y, scalef);
   });
 }
 
+// Piirtää scoren "scoreboardiin" kun peli loppuu
 function drawScoreScoreBoard(ctx, score, x, y, scale) {
   const digits = String(score).split("");
   const scalef = scale
   digits.forEach((digit, i) => {
-    // Siirretään jokaista numeroa hieman oikealle
     drawNumber(ctx, digit, x + i * 17, y, scalef);
   });
 }
 
-
+// Funktio pelin numeroille
 function drawNumber(ctx, num, x, y, scale) {
     const n = numbers[num];
-    const sscale = scale; // Skaalauskerroin
+    const sscale = scale;
     ctx.drawImage(spriteNumbers, n.x, n.y, n.w, n.h, x, y, n.w * sscale, n.h * sscale);
 }
 
@@ -380,7 +383,7 @@ function gameOver(){
     };
 }
 
-// Local storage
+// Local storage funktiot scoren tallentamiseen
 function saveHighScore(score) {
     const highScore = localStorage.getItem("highScore") || 0;
     if (score > highScore) {
