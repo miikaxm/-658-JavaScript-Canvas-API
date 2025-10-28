@@ -266,6 +266,15 @@ function drawScore(ctx, score, x, y, scale) {
   });
 }
 
+function drawScoreScoreBoard(ctx, score, x, y, scale) {
+  const digits = String(score).split("");
+  const scalef = scale
+  digits.forEach((digit, i) => {
+    // Siirretään jokaista numeroa hieman oikealle
+    drawNumber(ctx, digit, x + i * 17, y, scalef);
+  });
+}
+
 
 function drawNumber(ctx, num, x, y, scale) {
     const n = numbers[num];
@@ -311,8 +320,8 @@ function gameOver(){
 
     const scoreX = centerX - -70;
     const scoreY = centerY + 30;
-    drawScore(ctx, score, scoreX, scoreY+5, 2);
-    drawScore(ctx, getHighScore(), scoreX+3, scoreY+50, 2)
+    drawScoreScoreBoard(ctx, score, scoreX, scoreY+5, 2);
+    drawScoreScoreBoard(ctx, getHighScore(), scoreX+3, scoreY+50, 2)
 
     // Kolikot scoreboardiin scoren mukaan
     if (score >= 10 && score < 25) {
